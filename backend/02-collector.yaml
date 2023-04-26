@@ -6,6 +6,12 @@ metadata:
 spec:
   image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.74.0
   mode: deployment
+  env:
+  - name: NEW_RELIC_LICENSE_KEY
+    valueFrom:
+      secretKeyRef:
+        name: newrelic-key-secret
+        key: new_relic_license_key
   config: |
     receivers:
       otlp:
@@ -29,13 +35,9 @@ spec:
     
     exporters:
       otlp:
-        endpoint: "http://tempo.observability-backend.svc.cluster.local:55680"
-        tls:
-          insecure: true
-      otlphttp/mimir:
-        endpoint: "http://mimir.observability-backend.svc.cluster.local:8080/otlp"
-      loki:
-        endpoint: "http://loki.observability-backend.svc.cluster.local:3100/loki/api/v1/push"
+        endpoint: 'https://otlp.nr-data.net:4317'
+        headers:
+          api-key: $NEW_RELIC_LICENSE_KEY
       logging:
     
     service:
@@ -47,8 +49,8 @@ spec:
         metrics:
           receivers: [prometheus, otlp]
           processors: [memory_limiter, batch]
-          exporters: [otlphttp/mimir]
+          exporters: [otlp]
         logs:
           receivers: [otlp]
           processors: [memory_limiter, batch]
-          exporters: [loki, logging]
+          exporters: [otlp, logging]
