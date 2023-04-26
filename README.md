@@ -22,6 +22,15 @@ Here you will find our [cluster setup](./00-cluster-setup.md).
 
 ### Initial Setup
 
+#### If you are using New Relic backend, create a secret
+
+```bash
+# Set a Kubernetes secret with your New Relic license key:
+kubectl create secret generic newrelic-key-secret --from-literal=new_relic_license_key='<NEW_RELIC_LICENSE_KEY>'
+```
+
+The above secret is referenced in the `./backend/02-collector.yaml`
+
 #### Deploy cert-manager
 
 [cert-manager](https://cert-manager.io/docs/) is used by OpenTelemetry operator to provision TLS certificates for admission webhooks.
